@@ -1,0 +1,57 @@
+"The Companion Agent needs to become active. Currently it has settings but doesn't actually monitor or act. Implement these core functions:
+1. Pattern Recognition
+typescript// Companion watches all discussions for patterns
+async function companionMonitor(discussionId, messages) {
+  const patterns = {
+    repeated_topics: analyzeTopicFrequency(messages),
+    user_struggles: detectRepeatedQuestions(messages),
+    workflow_patterns: identifyTaskSequences(messages)
+  };
+  
+  if (patterns.repeated_topics.count > 3) {
+    return {
+      suggestion: `I notice you frequently discuss ${patterns.repeated_topics.topic}. 
+                   Would you like me to create a specialized agent for this?`,
+      agent_template: {
+        name: `${patterns.repeated_topics.topic} Expert`,
+        focus: patterns.repeated_topics.context,
+        knowledge: patterns.repeated_topics.examples
+      }
+    };
+  }
+}
+2. Agent Creation from Suggestion
+typescriptasync function createAgentFromCompanion(suggestion, userApproval) {
+  if (!userApproval) return;
+  
+  const newAgent = {
+    id: generateId(),
+    name: suggestion.agent_template.name,
+    system_prompt: `You are specialized in ${suggestion.agent_template.focus}. 
+                    Your knowledge includes: ${suggestion.agent_template.knowledge}`,
+    created_by: 'companion',
+    parent_discussion: suggestion.discussion_id
+  };
+  
+  await saveAgent(newAgent);
+  return `Created ${newAgent.name} to help with this topic`;
+}
+3. Companion Participation in Chat
+When enabled, Companion should occasionally add insights:
+typescript// After LLM responses, Companion analyzes
+if (companionEnabled && shouldCompanionSpeak(messages)) {
+  const companionResponse = {
+    role: 'companion',
+    content: generateCompanionInsight(messages),
+    color: 'blue',  // Distinct from LLMs
+    badge: '🧠 Companion'
+  };
+  displayInChat(companionResponse);
+}
+Test by:
+
+Enable Companion in Settings
+Have a conversation with repeated topics
+Companion should notice and suggest creating a specialized agent
+Approve creation and see new agent appear"
+

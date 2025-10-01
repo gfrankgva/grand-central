@@ -1,0 +1,94 @@
+Excellent news about the API keys! Now let's get the UI polished with the Grok-style interface and toggle feature. Here's the message for Replit:
+
+## For Replit: Implement Clean Grok UI with Model Toggles
+
+"The API keys issue is resolved. Now implement the cleaner UI matching Grok's design with the toggle feature:
+
+### 1. Add Model Toggle Bar at Top of Chat
+Exactly like the image shown:
+```typescript
+// Above chat area
+interface ModelToggleBar {
+  title: 'Active Models',
+  models: [
+    { name: 'GPT-5', color: 'blue', active: true },
+    { name: 'Claude Sonnet 4', color: 'purple', active: true },
+    { name: 'DeepSeek', color: 'green', active: false },
+    { name: 'Grok', color: 'gray', active: false }
+  ],
+  addButton: 'Add Model' // Opens dropdown to enable more
+}
+
+// Visual: Pill-shaped buttons that toggle on/off
+// Active = filled color, Inactive = gray outline
+```
+
+### 2. Simplify Left Sidebar (Match Grok)
+```css
+/* Remove all nested dots and complexity */
+.project-item {
+  padding: 8px 12px;
+  font-size: 14px;
+  /* No nested bullets, just simple expand arrow */
+}
+
+/* More whitespace between items */
+.project-item + .project-item {
+  margin-top: 4px;
+}
+```
+
+### 3. Stack Responses Cleanly
+Each response shows:
+- LLM badge with color (like in the image)
+- 'Mark as In Chat' option
+- Clear separation between responses
+- Single input field at bottom for all models
+
+### 4. Remove Visual Clutter
+- Remove the 3-dot menus from sidebar
+- Simplify icons
+- Increase padding/whitespace
+- Make Files/Conversations tabs more prominent
+
+### 5. Implementation Code
+```typescript
+// Only send to active models
+async function sendMessage(text) {
+  const activeModels = modelToggleBar.models
+    .filter(m => m.active)
+    .map(m => m.name.toLowerCase());
+  
+  // Only call active LLMs
+  const responses = await Promise.all(
+    activeModels.map(model => callLLM(model, text))
+  );
+  
+  // Display stacked
+  responses.forEach(response => {
+    displayResponse({
+      llm: response.model,
+      content: response.text,
+      color: getModelColor(response.model),
+      showMarkAsInChat: true
+    });
+  });
+}
+```
+
+### Test Flow:
+1. Toggle some models on/off in the bar
+2. Send a message
+3. Only active models should respond
+4. UI should be clean and uncluttered like Grok's
+
+This will give users control over which models respond and create a much cleaner interface!"
+
+## Next Priority Steps After UI:
+
+1. **Test the Quartet**: With all API keys working, test all 4 LLMs responding with their unique roles
+2. **Load System Context**: Add the coordinated intelligence document to align all LLMs
+3. **Metrics Dashboard**: Add Grok's performance tracking
+4. **Polish Companion**: Ensure it's suggesting agents properly
+
+The system is nearly complete! Once this UI update is done, Grand Central will be a truly professional multi-LLM workspace.

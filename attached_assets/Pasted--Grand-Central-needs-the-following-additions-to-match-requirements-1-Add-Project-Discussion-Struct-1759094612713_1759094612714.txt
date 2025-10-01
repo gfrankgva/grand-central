@@ -1,0 +1,88 @@
+"Grand Central needs the following additions to match requirements:
+1. Add Project/Discussion Structure
+Replace the current single-agent system with:
+- Projects (top level containers)
+  └── Discussions (sub-topics within projects)
+      └── Messages (from multiple LLMs + user)
+      └── Context (uploaded files/links)
+
+Update database schema:
+CREATE TABLE projects (
+  id varchar PRIMARY KEY,
+  name text,
+  description text,
+  created_at timestamp
+);
+
+CREATE TABLE discussions (
+  id varchar PRIMARY KEY,
+  project_id varchar REFERENCES projects(id),
+  name text,
+  context jsonb DEFAULT '[]', -- for files/links
+  created_at timestamp
+);
+
+CREATE TABLE messages (
+  id varchar PRIMARY KEY,
+  discussion_id varchar REFERENCES discussions(id),
+  content text,
+  sender text, -- 'user', 'claude', 'gpt4', 'deepseek', 'companion'
+  llm_provider text,
+  created_at timestamp
+);
+
+2. Add File Upload & Link Storage
+Create new endpoints:
+POST /api/discussions/:id/upload    - Upload files to discussion
+POST /api/discussions/:id/links     - Add URL references
+GET  /api/discussions/:id/context   - Get all context items
+
+Store files in Replit's filesystem or use Base64 in database.
+3. Switch to Persistent PostgreSQL
+Replace MemStorage with actual PostgreSQL:
+Use the configured Neon database connection
+Implement Drizzle ORM migrations
+Add connection pooling
+4. Create Companion Agent
+Add a special agent that:
+Lives at the root level (not inside any project)
+Monitors all discussions
+Can suggest creating specialized agents
+Routes messages to appropriate LLMs
+class CompanionAgent {
+  async processMessage(discussion_id, message) {
+    // Analyze message
+    // Decide which LLM(s) should respond
+    // Return array of LLM responses
+  }
+  
+  async suggestAgent(pattern) {
+    // When patterns detected, suggest new agent
+  }
+}
+
+5. Multi-LLM Orchestration
+Modify message flow so all LLMs can participate:
+POST /api/discussions/:id/message
+Body: { content: "user message" }
+
+Response: {
+  claude_response: "...",
+  gpt4_response: "...", 
+  deepseek_response: "...",
+  companion_suggestion: "..."
+}
+
+6. Update UI Layout
+Change three-panel layout to:
+Left: Projects tree with discussions
+Center: Selected discussion chat with all LLM responses visible
+Right: Context files/links + LLM status
+7. Add API Keys Configuration
+Create settings page or .env file for:
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+DEEPSEEK_API_KEY=
+
+Can you implement these changes to transform Grand Central into a true multi-LLM collaborative workspace with persistent memory and project organization?"
+

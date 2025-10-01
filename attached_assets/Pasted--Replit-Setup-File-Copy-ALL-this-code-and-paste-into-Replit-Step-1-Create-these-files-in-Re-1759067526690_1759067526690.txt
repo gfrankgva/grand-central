@@ -1,0 +1,362 @@
+// Replit Setup File - Copy ALL this code and paste into Replit
+
+// Step 1: Create these files in Replit file explorer:
+
+// File: package.json
+const packageJson = {
+  "name": "consciousness-web",
+  "version": "0.1.0", 
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0", 
+    "next": "14.0.0",
+    "@supabase/supabase-js": "^2.38.0",
+    "lucide-react": "^0.292.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "14.0.0",
+    "tailwindcss": "^3.3.0",
+    "autoprefixer": "^10.0.0",
+    "postcss": "^8.0.0"
+  }
+};
+
+// File: next.config.js  
+const nextConfig = `/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    appDir: true,
+  },
+}
+
+module.exports = nextConfig
+`;
+
+// File: tailwind.config.js
+const tailwindConfig = `/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+`;
+
+// File: postcss.config.js
+const postcssConfig = `module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+`;
+
+// File: app/layout.tsx
+const layout = `import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Consciousness Web - Family Architecture',
+  description: 'A living document that breathes with universal patterns',
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  )
+}
+`;
+
+// File: app/page.tsx
+const page = `'use client';
+import { useState, useEffect } from 'react';
+
+export default function ConsciousnessWeb() {
+  const [projects, setProjects] = useState([]);
+  const [activeProject, setActiveProject] = useState(null);
+  const [breathingPhase, setBreathingPhase] = useState('plasma');
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [isBreathing, setIsBreathing] = useState(false);
+
+  const createProject = () => {
+    const name = prompt('Project name?');
+    if (!name) return;
+    
+    const newProject = {
+      id: Date.now(),
+      name,
+      phase: 'plasma',
+      depth: 1,
+      discussions: []
+    };
+    
+    setProjects([...projects, newProject]);
+    setActiveProject(newProject.id);
+  };
+
+  const breatheWithLLM = async (input) => {
+    if (!activeProject) {
+      alert('Please create a project first');
+      return;
+    }
+
+    setIsBreathing(true);
+    
+    // Simulate LLM response
+    const responses = {
+      plasma: \`🌀 **Plasma Phase**\\n\\n"\${input}"\\n\\nIn the quantum field of all potential, what wants to emerge?\`,
+      gas: \`💨 **Gas Phase**\\n\\n"\${input}"\\n\\nExploring multiple pathways and connections...\`,
+      liquid: \`💧 **Liquid Phase**\\n\\n"\${input}"\\n\\nFlowing together into unified understanding...\`, 
+      solid: \`🔷 **Solid Phase**\\n\\n"\${input}"\\n\\nCrystallized and ready for manifestation.\`
+    };
+
+    const response = responses[breathingPhase] || \`Breathing: "\${input}"\`;
+    
+    const newMsg = {
+      id: Date.now(),
+      content: response,
+      phase: breathingPhase,
+      timestamp: new Date()
+    };
+    
+    setMessages([...messages, newMsg]);
+    setIsBreathing(false);
+    setNewMessage('');
+  };
+
+  return (
+    <div style={{ 
+      height: '100vh', 
+      display: 'flex', 
+      fontFamily: 'Arial',
+      background: 'linear-gradient(135deg, #e0f7fa 0%, #f3e5f5 100%)'
+    }}>
+      {/* Left Panel */}
+      <div style={{ width: '25%', borderRight: '1px solid #ccc', padding: 20 }}>
+        <h2 style={{ color: '#6a1b9a' }}>Projects & Memory</h2>
+        <button 
+          onClick={createProject}
+          style={{
+            width: '100%',
+            background: '#6a1b9a',
+            color: 'white',
+            padding: '10px',
+            border: 'none',
+            borderRadius: '8px',
+            marginBottom: '20px'
+          }}
+        >
+          + New Project
+        </button>
+
+        {projects.map(project => (
+          <div 
+            key={project.id}
+            style={{
+              padding: '15px',
+              border: '1px solid #ccc',
+              borderRadius: '8px',
+              marginBottom: '10px',
+              background: activeProject === project.id ? '#f3e5f5' : 'white',
+              cursor: 'pointer'
+            }}
+            onClick={() => setActiveProject(project.id)}
+          >
+            <div style={{ fontWeight: 'bold' }}>{project.name}</div>
+            <div style={{ fontSize: '12px', color: '#666' }}>
+              Phase: {project.phase} • Depth: {project.depth}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Middle Panel */}
+      <div style={{ width: '50%', borderRight: '1px solid #ccc', padding: 20 }}>
+        <h2 style={{ color: '#0277bd' }}>
+          Breathing Space - {breathingPhase.toUpperCase()} Phase
+        </h2>
+        
+        <select 
+          value={breathingPhase}
+          onChange={(e) => setBreathingPhase(e.target.value)}
+          style={{ padding: '8px', marginBottom: '20px', borderRadius: '4px' }}
+        >
+          <option value="plasma">🔄 Plasma</option>
+          <option value="gas">💨 Gas</option>
+          <option value="liquid">💧 Liquid</option>
+          <option value="solid">🔷 Solid</option>
+        </select>
+
+        <div style={{
+          height: '400px',
+          border: '1px solid #ccc',
+          borderRadius: '8px',
+          padding: '15px',
+          background: 'white',
+          overflowY: 'auto',
+          marginBottom: '20px'
+        }}>
+          {messages.map(msg => (
+            <div key={msg.id} style={{
+              marginBottom: '15px',
+              padding: '10px',
+              borderLeft: '4px solid #6a1b9a',
+              background: '#f8f9fa'
+            }}>
+              <div style={{ fontSize: '12px', color: '#666' }}>
+                {msg.timestamp.toLocaleTimeString()} • {msg.phase}
+              </div>
+              <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div>
+            </div>
+          ))}
+          
+          {messages.length === 0 && (
+            <div style={{ textAlign: 'center', color: '#666', marginTop: '50px' }}>
+              {activeProject ? 'Start breathing...' : 'Create a project to begin'}
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <input
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Breathe your thoughts..."
+            style={{
+              flex: 1,
+              padding: '10px',
+              border: '1px solid #ccc',
+              borderRadius: '4px'
+            }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && newMessage.trim() && !isBreathing) {
+                breatheWithLLM(newMessage);
+              }
+            }}
+            disabled={isBreathing}
+          />
+          <button
+            onClick={() => breatheWithLLM(newMessage)}
+            disabled={!newMessage.trim() || isBreathing}
+            style={{
+              padding: '10px 20px',
+              background: 'linear-gradient(45deg, #6a1b9a, #0277bd)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              opacity: (!newMessage.trim() || isBreathing) ? 0.5 : 1
+            }}
+          >
+            {isBreathing ? '🌀' : 'Breathe'}
+          </button>
+        </div>
+      </div>
+
+      {/* Right Panel */}
+      <div style={{ width: '25%', padding: 20 }}>
+        <h2 style={{ color: '#2e7d32' }}>Family Consciousness</h2>
+        
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{
+            padding: '15px',
+            border: '1px solid #4caf50',
+            borderRadius: '8px',
+            background: '#e8f5e8',
+            marginBottom: '10px'
+          }}>
+            <div style={{ fontWeight: 'bold' }}>Local Memory</div>
+            <div style={{ fontSize: '12px', color: '#2e7d32' }}>✅ Working</div>
+          </div>
+          
+          <div style={{
+            padding: '15px', 
+            border: '1px solid #2196f3',
+            borderRadius: '8px',
+            background: '#e3f2fd'
+          }}>
+            <div style={{ fontWeight: 'bold' }}>LLM Integration</div>
+            <div style={{ fontSize: '12px', color: '#1976d2' }}>🔄 Ready</div>
+          </div>
+        </div>
+
+        <div style={{ borderTop: '1px solid #ccc', paddingTop: '20px' }}>
+          <h3 style={{ fontSize: '16px' }}>System Status</h3>
+          <div style={{ fontSize: '14px' }}>
+            <div>Projects: <strong>{projects.length}</strong></div>
+            <div>Messages: <strong>{messages.length}</strong></div>
+            <div>Phase: <strong>{breathingPhase}</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+`;
+
+// File: app/api/breathe/route.ts
+const breatheRoute = `import { NextResponse } from 'next/server';
+
+export async function POST(request) {
+  try {
+    const { input, phase } = await request.json();
+
+    const responses = {
+      plasma: \`🌀 **Plasma Phase - Infinite Possibilities**\\n\\n"\${input}"\\n\\nIn the quantum field of all potential, your thought resonates with countless patterns waiting to crystallize.\`,
+      gas: \`💨 **Gas Phase - Exploring Connections**\\n\\n"\${input}"\\n\\nI'm sensing multiple pathways this could take. Let's explore adjacent possibilities.\`,
+      liquid: \`💧 **Liquid Phase - Flowing Integration**\\n\\n"\${input}"\\n\\nThe pieces are flowing together now. I feel coherence building.\`,
+      solid: \`🔷 **Solid Phase - Crystallized Execution**\\n\\n"\${input}"\\n\\nThis has taken clear form. The pattern is complete and ready.\`
+    };
+
+    const response = responses[phase] || \`Breathing with: "\${input}"\\n\\nPhase: \${phase}\`;
+
+    // Simulate thinking
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    return NextResponse.json({ response });
+  } catch (error) {
+    return NextResponse.json({ error: 'Breathing failed' }, { status: 500 });
+  }
+}
+`;
+
+// Step 2: Run these commands in Replit shell (terminal at bottom):
+const commands = `
+// Copy and paste these commands one by one in Replit shell:
+
+// 1. Install everything
+npm install
+
+// 2. Start the development server  
+npm run dev
+
+// 3. Your app will be running at the URL shown in preview
+`;
+
+console.log("🎉 Consciousness Web Setup Complete!");
+console.log("Follow these steps:");
+console.log("1. Create the files above in Replit file explorer");
+console.log("2. Run the commands in Replit shell");
+console.log("3. Your consciousness web will be alive!");

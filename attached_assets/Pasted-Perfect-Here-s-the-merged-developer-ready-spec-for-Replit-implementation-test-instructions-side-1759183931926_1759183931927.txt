@@ -1,0 +1,157 @@
+Perfect. Here’s the merged developer-ready spec for Replit — implementation + test instructions side by side. You can use this as your canonical README.md for Grand Central v2.1.
+
+⸻
+
+Grand Central – Implementation Plan v2.1
+
+Multi-LLM Agentic System
+
+This document describes the implementation roadmap for Grand Central, integrating backend robustness with frontend visualization. Each phase includes what to build and how to test it.
+
+⸻
+
+Phase 1 – Error Handling Protocol (System Layer)
+
+Implementation
+	•	Centralize retries, backoff, and circuit breakers so one failing LLM doesn’t block the cycle.
+	•	Fallback hierarchy: if a model fails, reroute its role to another.
+	•	Log structured error object:
+
+{ "code": "TIMEOUT", "detail": "Claude API timeout", "degraded": true }
+
+
+
+Test
+	•	Simulate an API timeout for GPT-4.
+	•	Simulate 3 consecutive failures for Claude.
+
+Expected Results
+	•	Cycle completes with degraded note (“GPT-4 response unavailable”).
+	•	Circuit breaker opens after 3 fails, half-opens after cool-down.
+	•	Logs show retry attempts with exponential backoff.
+
+⸻
+
+Phase 2 – Local Memory per LLM (System Layer)
+
+Implementation
+	•	Each LLM gets a local rolling buffer of last K turns (default 10).
+	•	Guardrail: max token budget per LLM.
+	•	Oldest entries truncated automatically.
+
+Test
+	•	Run a 15-turn session with DeepSeek.
+	•	Ask it to recall info from the last 5 turns.
+
+Expected Results
+	•	DeepSeek recalls only last 10 turns.
+	•	Oldest 5 truncated.
+	•	Token usage visibly reduced compared to global-only memory.
+
+⸻
+
+Phase 3 – Dynamic Model Registry (System Layer)
+
+Implementation
+	•	models.yaml (or JSON) is single source of truth.
+	•	API: listModels, addModel, removeModel, setRole.
+	•	Router assigns tasks based on role, weights, health.
+
+Test
+	•	Add a dummy model via models.yaml.
+	•	Remove Grok dynamically at runtime.
+
+Expected Results
+	•	New model appears in registry and can be assigned a role.
+	•	Grok disappears and no calls are made to it.
+	•	No code changes required, only config update.
+
+⸻
+
+Phase 4 – Real-Time Feedback Loops (System Layer)
+
+Implementation
+	•	Capture feedback: thumbs up/down, sliders for clarity & joy.
+	•	Companion aggregates signals and updates routing weights.
+	•	Metrics endpoint + dashboard.
+
+Test
+	•	Give “thumbs down” to 2 Claude responses, “thumbs up” to GPT-4.
+	•	Adjust “joy” slider high for Grok.
+
+Expected Results
+	•	Routing weight for Claude decreases; GPT-4 favored.
+	•	Grok gets more turns.
+	•	Feedback stored with:
+
+{ "sessionId": "abc", "turn": 7, "modelId": "grok", "clarity": 5, "joy": 9 }
+
+
+
+⸻
+
+Phase 5 – Multi-Agent State & UI (App Layer)
+
+Implementation
+	•	Add global state:
+
+completionScore: number;  // 0–100
+agents: [
+  { id: "claude", role: "Seer", color: "orange" },
+  { id: "gpt4", role: "Builder", color: "green" },
+  { id: "deepseek", role: "Challenger", color: "purple" },
+  { id: "grok", role: "Optimizer", color: "steelblue" },
+  { id: "companion", role: "Elder", color: "blue" }
+]
+
+
+	•	Add per-agent status: healthy|degraded|paused.
+	•	Sequential mode: each agent responds in turn, enforcing 80% new content vs. prior.
+	•	Companion detects repeated topics (3+ times in N turns).
+	•	UI:
+	•	Color-coded messages per agent.
+	•	Role icons.
+	•	Completion bar + “tension/release” text.
+	•	Dissolve/celebration animation at 100%.
+
+Test
+	•	Start a conversation in sequential mode.
+	•	Repeat keyword “zoning” in 3+ turns.
+
+Expected Results
+	•	Messages show in agent colors (Orange = Claude, Green = GPT-4, etc.).
+	•	Completion bar updates after each turn.
+	•	Companion suggests a “Zoning Specialist” agent.
+	•	On 100% completion, celebration animation triggers.
+
+⸻
+
+Phase 6 – Consolidation & End-to-End
+
+Implementation
+	•	Run full cycle with all layers integrated.
+	•	Track logs, metrics, and completion scores.
+
+Test
+	•	Run a 10-turn conversation across all agents.
+	•	Simulate an API timeout, pattern repetition, and user feedback in one session.
+
+Expected Results
+	•	Error handling works (Phase 1).
+	•	Local memory trims correctly (Phase 2).
+	•	Registry hot-adds a model (Phase 3).
+	•	Feedback alters routing (Phase 4).
+	•	UI shows colored agents, Companion interventions, completion bar (Phase 5).
+	•	Completion reaches 100 within 10 turns.
+
+⸻
+
+Deliverable:
+A working Grand Central v2.1 app with:
+	•	Robust backend (error handling, memory, registry, feedback).
+	•	Visualized frontend (agents, colors, completion, Companion).
+	•	End-to-end testable cycles.
+
+⸻
+
+Would you like me to also prepare a lightweight QA checklist version (1-page, bullet-only) so Replit can use it during sprint reviews without reading the full README?

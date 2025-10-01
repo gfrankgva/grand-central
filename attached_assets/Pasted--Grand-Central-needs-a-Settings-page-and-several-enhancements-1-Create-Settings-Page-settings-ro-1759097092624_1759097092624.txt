@@ -1,0 +1,141 @@
+"Grand Central needs a Settings page and several enhancements:
+1. Create Settings Page (/settings route)
+Add a new settings interface with these sections:
+// Settings Page Structure
+{
+  // API Configuration
+  apiKeys: {
+    openai: { key: string, model: 'gpt-4' | 'gpt-3.5-turbo' },
+    anthropic: { key: string, model: 'claude-3-opus' | 'claude-3-sonnet' },
+    deepseek: { key: string, endpoint: string }
+  },
+  
+  // Companion Agent Settings
+  companion: {
+    enabled: boolean,
+    autoSuggest: boolean,
+    monitoringLevel: 'all' | 'active' | 'none',
+    personality: string  // System prompt for companion
+  },
+  
+  // Global Context (applies to all projects)
+  globalContext: {
+    files: File[],
+    urls: string[],
+    instructions: string  // Global instructions for all LLMs
+  },
+  
+  // Response Preferences
+  preferences: {
+    simultaneous: boolean,  // All LLMs respond together
+    sequential: boolean,    // LLMs take turns
+    primaryLLM: string,     // Default responder
+    maxTokens: number,
+    temperature: number
+  }
+}
+
+2. Add Companion Agent
+Create a special system-level agent that:
+Monitors all conversations across projects
+Suggests when specialized agents might help
+Can create new agents programmatically
+// Add to database schema
+CREATE TABLE companion_agent (
+  id varchar PRIMARY KEY,
+  observations jsonb DEFAULT '[]',
+  suggestions jsonb DEFAULT '[]',
+  pattern_memory jsonb DEFAULT '{}',
+  created_at timestamp
+);
+
+// Companion monitoring endpoint
+POST /api/companion/analyze
+{
+  discussion_id: string,
+  pattern: string
+}
+Response: {
+  suggestion: 'Create specialized agent for X',
+  confidence: 0.85
+}
+
+3. Implement Agent Creation from Companion
+POST /api/agents/create-from-suggestion
+{
+  suggestion: CompanionSuggestion,
+  approved: boolean
+}
+
+4. Add Pattern Memory System
+Track usage patterns to deepen agent knowledge:
+CREATE TABLE pattern_memory (
+  id varchar PRIMARY KEY,
+  pattern_type text,  // 'topic', 'style', 'frequency'
+  pattern_data jsonb,
+  depth integer DEFAULT 0,  // Increases with use
+  last_accessed timestamp
+);
+
+5. Settings UI Components
+Create these UI sections:
+API Keys Section:
+Input fields for each LLM API key
+Test connection button for each
+Model selection dropdown
+Usage statistics display
+Global Context Section:
+File upload area (drag & drop)
+URL input with validation
+Global instructions textarea
+Apply to all projects checkbox
+Companion Agent Section:
+Enable/disable toggle
+Personality customization
+Auto-suggestion threshold
+View suggestion history
+Preferences Section:
+Response mode (simultaneous/sequential)
+Default LLM selection
+Token limits
+Temperature controls
+6. Persist Settings
+Store settings in database:
+CREATE TABLE user_settings (
+  id varchar PRIMARY KEY DEFAULT 'default',
+  api_keys jsonb DEFAULT '{}',
+  preferences jsonb DEFAULT '{}',
+  global_context jsonb DEFAULT '[]',
+  companion_config jsonb DEFAULT '{}',
+  updated_at timestamp
+);
+
+7. Environment Variables Backup
+Support both database and .env file for API keys:
+# .env.local
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+DEEPSEEK_API_KEY=
+
+8. Add Missing Navigation
+Update the header with:
+Settings button/icon (gear icon)
+Companion Agent status indicator
+Active LLMs indicator
+Global context indicator
+9. Session Memory
+Since everything is now persistent, add session tracking:
+CREATE TABLE sessions (
+  id varchar PRIMARY KEY,
+  user_id varchar DEFAULT 'default',
+  active_project_id varchar,
+  active_discussion_id varchar,
+  last_activity timestamp
+);
+
+10. Quick Implementation Priority
+First: Basic Settings page with API key inputs
+Second: Global context upload
+Third: Companion agent toggle
+Fourth: Advanced preferences
+Can you implement these additions, starting with a basic Settings page for API keys?"

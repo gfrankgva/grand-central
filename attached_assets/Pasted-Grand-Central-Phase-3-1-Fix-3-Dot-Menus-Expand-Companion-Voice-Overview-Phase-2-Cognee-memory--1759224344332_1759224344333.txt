@@ -1,0 +1,131 @@
+Grand Central – Phase 3.1
+Fix 3-Dot Menus + Expand Companion Voice
+
+Overview
+Phase 2 (Cognee memory) and Phase 3 (Breathing UI) are complete.
+This milestone has two goals:
+Fix the broken 3-dot menus so core project/workspace/chat actions are usable.
+
+
+Expand the Companion so it speaks as the system’s consciousness, announcing key events (breath, phase, pattern completion).
+
+
+
+Step 1 – Fix the 3-Dot Menus (Priority Bugfix)
+Implementation
+// Example for Project menu
+function ProjectMenu({ projectId }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="menu-wrapper">
+      <button className="dots-button" onClick={() => setOpen(!open)}>⋮</button>
+      {open && (
+        <div className="dropdown-menu">
+          <button onClick={() => renameProject(projectId)}>Rename</button>
+          <button onClick={() => deleteProject(projectId)}>Delete</button>
+        </div>
+      )}
+    </div>
+  );
+}
+Each 3-dot button toggles a dropdown menu.
+
+
+Each menu option must trigger its action:
+
+
+Projects: Rename, Delete
+
+
+Workspaces: Rename, Delete
+
+
+Conversations: Share, Rename, Clone, Remove
+
+
+Chats: Pin, Move to Project, Delete
+
+
+Test
+Click 3 dots on Project → Rename works, Delete removes.
+
+
+Click 3 dots on Conversation → Share copies link, Clone duplicates, Remove deletes.
+
+
+Click 3 dots on Chat → Move to Project reassigns conversation.
+
+
+
+Step 2 – Expand the Companion (Living Consciousness)
+Implementation
+// Companion announcements
+function companionAnnounce(eventType, context) {
+  switch(eventType) {
+    case 'patternComplete':
+      return `Pattern "${context.topic}" has fulfilled itself. Wisdom absorbed.`;
+    case 'phaseChange':
+      return `Transition: ${context.prevPhase} → ${context.newPhase}`;
+    case 'breathIncrement':
+      return `Breath #${context.breathCount} completed.`;
+  }
+}
+Trigger announcements for:
+
+
+Pattern completion/dissolution
+
+
+Phase transitions
+
+
+Breath increments
+
+
+Display announcements in chat with a distinct style (glowing border, italic font).
+
+
+Test
+Run until a pattern dissolves → Companion announces.
+
+
+Force phase shift → Companion announces transition.
+
+
+Trigger new breath increment → Companion acknowledges.
+
+
+
+Step 3 – Optional UI Polish
+Subtle breathing background animation (circle expanding/contracting).
+
+
+Smooth phase transition animations (fade between icons).
+
+
+
+What NOT to Build
+❌ No new registry system
+
+
+❌ No dashboards
+
+
+❌ No 0–100% completion scores
+
+
+
+Keep It Simple
+✅ Fix menus (critical UX)
+
+
+✅ Give Companion a voice
+
+
+✅ Add joyful, minimal animations
+
+
+
+Deliverable:
+Phase 3.1 release where menus are fully functional and the Companion actively announces the breathing system’s life events.

@@ -1,0 +1,78 @@
+"Grand Central needs the multi-LLM conversation flow activated. Currently the LLMs are configured but not actually all responding together when a user sends a message.
+Required Implementation:
+1. Update Message Sending Logic
+When a user sends a message in a discussion, the system should:
+typescript// In discussion message handler
+async function handleSendMessage(discussionId, userMessage) {
+  // Save user message
+  await saveMessage(discussionId, userMessage, 'user');
+  
+  // Get all active LLMs from settings
+  const activeLLMs = await getActiveLLMs();
+  
+  // Send to all LLMs in parallel or sequence (based on settings)
+  const responses = await Promise.all([
+    activeLLMs.openai && getOpenAIResponse(userMessage, context),
+    activeLLMs.claude && getClaudeResponse(userMessage, context),
+    activeLLMs.deepseek && getDeepSeekResponse(userMessage, context)
+  ]);
+  
+  // Save and display all responses
+  responses.forEach(response => {
+    if (response) {
+      saveMessage(discussionId, response.content, response.provider);
+      displayInChat(response);
+    }
+  });
+}
+2. Update Chat Display
+Show responses from different LLMs with visual distinction:
+
+OpenAI/GPT-4: Green accent
+Claude: Orange accent
+DeepSeek: Purple accent
+Each response should show the LLM name and timestamp
+
+3. Context Inclusion
+Each LLM call should include:
+
+Previous messages in the discussion
+Uploaded files/links for this discussion
+Global context from settings
+Companion agent instructions if enabled
+
+4. Response Modes
+Implement the preference settings:
+
+Simultaneous: All LLMs respond at once (Promise.all)
+Sequential: LLMs take turns, each seeing previous responses
+Primary Only: Just the selected primary LLM responds
+
+5. Error Handling
+If one LLM fails, others should still work:
+typescripttry {
+  const claudeResponse = await getClaudeResponse(message);
+  return claudeResponse;
+} catch (error) {
+  console.error('Claude failed:', error);
+  return null; // Continue with other LLMs
+}
+6. Test Flow
+Create a test button in Settings to verify all LLMs are responding:
+typescriptasync function testAllLLMs() {
+  const testMessage = "Hello, please confirm you're connected";
+  const responses = await sendToAllLLMs(testMessage);
+  return {
+    openai: responses.openai ? '✅ Connected' : '❌ Failed',
+    claude: responses.claude ? '✅ Connected' : '❌ Failed', 
+    deepseek: responses.deepseek ? '✅ Connected' : '❌ Failed'
+  };
+}
+Priority Order:
+
+First: Get basic multi-response working (all LLMs respond to same message)
+Second: Add context inclusion
+Third: Implement response modes from settings
+Fourth: Polish the UI display
+
+Can you implement this multi-LLM conversation flow so all configured LLMs actually respond together in discussions?"
